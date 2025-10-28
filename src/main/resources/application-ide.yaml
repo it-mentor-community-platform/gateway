@@ -1,5 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/it_mentor_community_platform
-    username: root
-    password: password
