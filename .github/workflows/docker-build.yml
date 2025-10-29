@@ -32,7 +32,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/gateway
           flavor: latest=false
-          tags: type=raw,value={{branch}}
+          tags: type=raw,value={{ref_name}}
 
       - name: Build and push
         uses: docker/build-push-action@v6
