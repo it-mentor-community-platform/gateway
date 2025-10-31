@@ -1,4 +1,4 @@
-package itmentor.community.platform.gateway;
+package com.itmentorcommunityplatform.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
