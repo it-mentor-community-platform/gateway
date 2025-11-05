@@ -1,0 +1,4 @@
+app:
+  http-client:
+    connect-timeout: 1100
+    read-timeout: 1100

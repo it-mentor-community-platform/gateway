@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: auth-service
+              uri: ${app.routes.auth-service.uri}
+              predicates:
+                - Path=/api/auth/**
+
+app:
+  http-client:
+    connect-timeout: 2000
+    read-timeout: 6000
+  routes:
+    auth-service:
+      uri: http://localhost:8081

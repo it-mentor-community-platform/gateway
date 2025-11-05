@@ -1,0 +1,7 @@
+server:
+  port: 8085
+
+app:
+  routes:
+    auth-service:
+      uri: http://localhost:8081
