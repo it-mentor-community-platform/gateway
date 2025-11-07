@@ -18,6 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 public class GatewayGeneralIntegrationTest {
 
     private static final String AUTH_SERVICE_BASE_PATH = "/api/auth";
+    private static final String AUTH_SERVICE_INTERNAL_PATH = "/api/auth/internal/test";
 
     @Autowired
     private WebTestClient webClient;
@@ -46,5 +47,24 @@ public class GatewayGeneralIntegrationTest {
                 // then
                 .expectStatus().isEqualTo(HttpStatus.NOT_FOUND)
                 .expectBody(String.class);
+    }
+
+    @Test
+    @DisplayName("Запрос к внутреннему эндпоинту сервиса -> возвращается статус код 403 Forbidden")
+    void requestsToInternalEndpoint_Returns403() {
+        // given
+        // when
+        webClient.get()
+                .uri(AUTH_SERVICE_INTERNAL_PATH)
+                .exchange()
+                // then
+                .expectStatus().value(status -> {
+                    if (status != HttpStatus.FORBIDDEN.value()) {
+                        throw new AssertionError(
+                                "Expected " + HttpStatus.FORBIDDEN
+                                + " for path " + AUTH_SERVICE_INTERNAL_PATH
+                                + ", but got " + HttpStatus.valueOf(status));
+                    }
+                });
     }
 }
