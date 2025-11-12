@@ -2,3 +2,7 @@ app:
   routes:
     auth-service:
       uri: http://auth-service:8080
+
+monitoring:
+  prometheus:
+    password: password

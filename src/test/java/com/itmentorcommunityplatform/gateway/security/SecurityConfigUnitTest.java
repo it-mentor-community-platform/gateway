@@ -8,17 +8,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({SecurityConfig.class, SecurityConfigUnitTest.TestSecurityDummyController.class})
 @WebMvcTest
 @AutoConfigureMockMvc
 @DisplayName("SecurityConfig тестирование правил доступа")
+@ActiveProfiles("test")
 class SecurityConfigUnitTest {
 
     private static final String AUTH_INTERNAL_URL = "/api/auth/internal/test";
@@ -27,6 +31,9 @@ class SecurityConfigUnitTest {
     private static final String AUTH_LOGIN_URL = "/api/auth/login";
     private static final String UNKNOWN_URL = "/unknown/path";
     private static final String PUBLIC_WITH_INTERNAL_URL = "/api/auth/login/internal/secret";
+
+    private static final String PROMETHEUS_URL = "/actuator/prometheus";
+    private static final String HEALTH_URL = "/actuator/health";
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,6 +46,10 @@ class SecurityConfigUnitTest {
         @GetMapping(AUTH_LOGIN_URL) public String login() {return "ok";}
         @GetMapping(UNKNOWN_URL) public String unknown() {return "ok";}
         @GetMapping(PUBLIC_WITH_INTERNAL_URL) public String publicWithInternal() { return "ok"; }
+
+        @GetMapping(PROMETHEUS_URL) public String prometheus() {
+            return "# HELP test_metric Example metric\n# TYPE test_metric gauge\ntest_metric 1.0\n";}
+        @GetMapping(HEALTH_URL) public String health() {return "{\"status\":\"UP\"}";}
     }
 
     @Test
@@ -81,5 +92,38 @@ class SecurityConfigUnitTest {
     void noServiceSegmentPaths_Returns200() throws Exception {
         mockMvc.perform(get(NO_SERVICE_SEGMENT_URL).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("/actuator/prometheus без авторизации -> 401 Unauthorized")
+    void prometheusWithoutAuth_Returns401() throws Exception {
+        mockMvc.perform(get(PROMETHEUS_URL))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().string("WWW-Authenticate", containsString("Basic")));
+    }
+
+    @Test
+    @DisplayName("/actuator/prometheus с неправильными credentials -> 401 Unauthorized")
+    void prometheusWithWrongCredentials_Returns401() throws Exception {
+        mockMvc.perform(get(PROMETHEUS_URL)
+                        .with(httpBasic("prometheus", "wrong_password")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("/actuator/prometheus с правильными credentials -> 200 OK")
+    void prometheusWithCorrectCredentials_Returns200() throws Exception {
+        mockMvc.perform(get(PROMETHEUS_URL)
+                        .with(httpBasic("prometheus", "password")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("test_metric")));
+    }
+
+    @Test
+    @DisplayName("/actuator/health доступен без авторизации -> 200 OK")
+    void healthEndpointIsPublic_Returns200() throws Exception {
+        mockMvc.perform(get(HEALTH_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
     }
 }

@@ -5,3 +5,7 @@ app:
   routes:
     auth-service:
       uri: http://localhost:8081
+
+monitoring:
+  prometheus:
+    password: password
