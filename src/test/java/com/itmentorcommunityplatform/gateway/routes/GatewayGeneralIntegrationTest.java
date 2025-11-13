@@ -26,7 +26,7 @@ public class GatewayGeneralIntegrationTest {
     private WebTestClient webClient;
 
     @Test
-    @DisplayName("Внутренний сервис недоступен -> возвращается статус код 502")
+    @DisplayName("Внутренний публичный сервис недоступен -> возвращается статус код 502")
     void downstreamServiceUnavailable_ReturnsStatusCode502() {
         // given
         // when
@@ -39,7 +39,7 @@ public class GatewayGeneralIntegrationTest {
     }
 
     @Test
-    @DisplayName("Запрос на необрабатываемый путь -> возвращается статус код 404")
+    @DisplayName("Запрос на защищенный путь без jwt токена -> возвращается статус код 401")
     void requestToUnprocessablePath_ReturnsStatusCode404() {
         // given
         // when
@@ -47,12 +47,12 @@ public class GatewayGeneralIntegrationTest {
                 .uri("/unknown/test")
                 .exchange()
                 // then
-                .expectStatus().isEqualTo(HttpStatus.NOT_FOUND)
+                .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED)
                 .expectBody(String.class);
     }
 
     @Test
-    @DisplayName("Запрос к внутреннему эндпоинту сервиса -> возвращается статус код 403 Forbidden")
+    @DisplayName("Запрос к внутреннему эндпоинту сервиса без jwt токена -> возвращается статус код 401")
     void requestsToInternalEndpoint_Returns403() {
         // given
         // when
@@ -60,13 +60,6 @@ public class GatewayGeneralIntegrationTest {
                 .uri(AUTH_SERVICE_INTERNAL_PATH)
                 .exchange()
                 // then
-                .expectStatus().value(status -> {
-                    if (status != HttpStatus.FORBIDDEN.value()) {
-                        throw new AssertionError(
-                                "Expected " + HttpStatus.FORBIDDEN
-                                + " for path " + AUTH_SERVICE_INTERNAL_PATH
-                                + ", but got " + HttpStatus.valueOf(status));
-                    }
-                });
+                .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }

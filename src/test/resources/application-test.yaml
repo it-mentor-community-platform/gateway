@@ -6,3 +6,6 @@ app:
 monitoring:
   prometheus:
     password: password
+
+jwt:
+  secret: defaultSecretKeyThatIsLongEnoughForTests
