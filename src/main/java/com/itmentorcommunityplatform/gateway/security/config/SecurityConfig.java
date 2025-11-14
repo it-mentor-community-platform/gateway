@@ -1,6 +1,5 @@
 package com.itmentorcommunityplatform.gateway.security.config;
 
-import com.itmentorcommunityplatform.gateway.security.CustomJjwtDecoder;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +27,11 @@ public class SecurityConfig {
 
     private static final String API_SERVICE_INTERNAL_PATTERN = "/api/{service:^(?!$).+}/internal/**";
 
-    private final String jwtSecret;
+    private final JwtDecoder jwtDecoder;
 
     @Autowired
-    public SecurityConfig(@Value("${jwt.secret}") String jwtSecret) {
-        this.jwtSecret = jwtSecret;
+    public SecurityConfig(JwtDecoder jwtDecoder) {
+        this.jwtDecoder = jwtDecoder;
     }
 
     @Bean
@@ -53,8 +52,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtDecoder jwtDecoder) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
@@ -67,7 +65,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.decoder(jwtDecoder))
                         .authenticationEntryPoint((req, res, authEx) ->
-                                sendJsonUnauthorized(res, "Authentication required")))
+                                sendJsonUnauthorized(res, "Authentication required: " + authEx.getMessage())))
                 .build();
     }
 
@@ -79,11 +77,6 @@ public class SecurityConfig {
             "message": "%s"
         }
         """.formatted(message));
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return new CustomJjwtDecoder(this.jwtSecret);
     }
 
     @Bean

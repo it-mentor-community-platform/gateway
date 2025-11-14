@@ -1,7 +1,31 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: auth-service
+              uri: ${app.routes.auth-service.uri}
+              predicates:
+                - Path=/api/auth/**
+            - id: test-service
+              uri: ${app.routes.test-service.uri}
+              predicates:
+                - Path=/api/test/**
+            - id: not-active-service
+              uri: http://localhost:9932
+              predicates:
+                - Path=/api/not-active-service/**
+
 app:
   http-client:
     connect-timeout: 1100
     read-timeout: 1100
+  routes:
+    auth-service:
+      uri: http://localhost:0
+    test-service:
+      uri: http://localhost:0
 
 monitoring:
   prometheus:

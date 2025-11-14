@@ -152,7 +152,7 @@ class SecurityConfigUnitTest {
                         .header("Authorization", "Bearer " + invalidToken)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("Authentication required"));
+                .andExpect(jsonPath("$.message").value(containsString("Authentication required")));
     }
 
     @Test
