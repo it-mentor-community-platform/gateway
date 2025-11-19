@@ -2,6 +2,8 @@ app:
   routes:
     auth-service:
       uri: http://auth-service:8080
+    data-importer:
+      uri: http://data-importer:8080
 
 monitoring:
   prometheus:
