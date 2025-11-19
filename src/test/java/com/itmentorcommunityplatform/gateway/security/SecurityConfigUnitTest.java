@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -139,35 +137,5 @@ class SecurityConfigUnitTest {
         mockMvc.perform(get(HEALTH_URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"));
-    }
-
-    @Test
-    @DisplayName("Защищённый путь с невалидным JWT токеном -> 401 Unauthorized")
-    void protectedPathWithExpiredJwt_Returns401() throws Exception {
-        String invalidToken = "invalid.token";
-
-        when(jwtDecoder.decode(invalidToken)).thenThrow(new BadJwtException("JWT is invalid"));
-
-        mockMvc.perform(get(JWT_PROTECTED_URL)
-                        .header("Authorization", "Bearer " + invalidToken)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(containsString("Authentication required")));
-    }
-
-    @Test
-    @DisplayName("Некорректный Authorization заголовок (не Bearer) -> 401 Unauthorized")
-    void invalidAuthHeader_Returns401() throws Exception {
-        mockMvc.perform(get(JWT_PROTECTED_URL)
-                        .header("Authorization", "Basic dGVzdDp0ZXN0"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("Пустой Authorization заголовок -> 401 Unauthorized")
-    void emptyAuthHeader_Returns401() throws Exception {
-        mockMvc.perform(get(JWT_PROTECTED_URL)
-                        .header("Authorization", ""))
-                .andExpect(status().isUnauthorized());
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -38,6 +37,7 @@ public class GatewayGeneralIntegrationTest {
     private static final String TEST_SERVICE_PATH = "/api/test/endpoint";
     private static final String TEST_SERVICE_INTERNAL_PATH = "/api/test/internal";
 
+    private static final String ACCESS_TOKEN_HEADER_NAME = "X-Access-Token";
     private static final String USER_ID_HEADER_NAME = "X-Telegram-User-Id";
     private static final String USER_ROLES_HEADER_NAME = "X-User-Roles";
     private static final String ROLES_CLAIM_NAME = "roles";
@@ -117,7 +117,7 @@ public class GatewayGeneralIntegrationTest {
         // when
         webClient.get()
                 .uri(TEST_SERVICE_PATH)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validJwtTestUserAdminStudent)
+                .header(ACCESS_TOKEN_HEADER_NAME, validJwtTestUserAdminStudent)
                 .exchange()
                 // then
                 .expectStatus().isOk()
@@ -137,7 +137,7 @@ public class GatewayGeneralIntegrationTest {
         // when
         webClient.get()
                 .uri(NOT_ACTIVE_SERVICE_PATH)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validJwtTestUserAdminStudent)
+                .header(ACCESS_TOKEN_HEADER_NAME, validJwtTestUserAdminStudent)
                 .exchange()
                 // then
                 .expectStatus().isEqualTo(HttpStatus.BAD_GATEWAY)
@@ -158,7 +158,7 @@ public class GatewayGeneralIntegrationTest {
         // when
         webClient.get()
                 .uri(TEST_SERVICE_PATH + "/slow")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validJwtTestUserAdminStudent)
+                .header(ACCESS_TOKEN_HEADER_NAME, validJwtTestUserAdminStudent)
                 .exchange()
                 // then
                 .expectStatus().isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
@@ -175,7 +175,7 @@ public class GatewayGeneralIntegrationTest {
         // when
         webClient.get()
                 .uri(TEST_SERVICE_INTERNAL_PATH + "/secret")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validJwtTestUserAdminStudent)
+                .header(ACCESS_TOKEN_HEADER_NAME, validJwtTestUserAdminStudent)
                 .exchange()
                 // then
                 .expectStatus().isForbidden();

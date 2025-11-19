@@ -26,6 +26,7 @@ import java.io.IOException;
 public class SecurityConfig {
 
     private static final String API_SERVICE_INTERNAL_PATTERN = "/api/{service:^(?!$).+}/internal/**";
+    private static final String ACCESS_TOKEN_HEADER_NAME = "X-Access-Token";
 
     private final JwtDecoder jwtDecoder;
 
@@ -64,6 +65,8 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.decoder(jwtDecoder))
+                        .bearerTokenResolver(request -> request
+                                .getHeader(ACCESS_TOKEN_HEADER_NAME))
                         .authenticationEntryPoint((req, res, authEx) ->
                                 sendJsonUnauthorized(res, "Authentication required: " + authEx.getMessage())))
                 .build();
