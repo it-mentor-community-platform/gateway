@@ -5,7 +5,12 @@ app:
   routes:
     auth-service:
       uri: http://localhost:8081
+    data-importer:
+      uri: http://localhost:8082
 
 monitoring:
   prometheus:
     password: password
+
+jwt:
+  secret: 632eca39fc29068edc74133ca9cf8f40b4942191f80c0c78dd588835beb5f57b

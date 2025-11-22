@@ -2,7 +2,12 @@ app:
   routes:
     auth-service:
       uri: http://auth-service:8080
+    data-importer:
+      uri: http://data-importer:8080
 
 monitoring:
   prometheus:
     password: password
+
+jwt:
+  secret: 632eca39fc29068edc74133ca9cf8f40b4942191f80c0c78dd588835beb5f57b

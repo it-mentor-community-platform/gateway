@@ -10,6 +10,10 @@ spring:
               uri: ${app.routes.auth-service.uri}
               predicates:
                 - Path=/api/auth/**
+            - id: data-importer
+              uri: ${app.routes.data-importer.uri}
+              predicates:
+                - Path=/api/data-importer/**
 
 app:
   http-client:
@@ -17,7 +21,9 @@ app:
     read-timeout: 6000
   routes:
     auth-service:
-      uri: http://localhost:8081
+      uri: ${AUTH_SERVICE_URI}
+    data-importer:
+      uri: ${DATA_IMPORTER_URI}
 
 management:
   metrics:
@@ -33,3 +39,6 @@ management:
 monitoring:
   prometheus:
     password: ${PROMETHEUS_PASSWORD}
+
+jwt:
+  secret: ${JWT_SECRET}
