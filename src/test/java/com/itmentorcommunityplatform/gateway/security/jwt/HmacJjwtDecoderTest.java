@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HmacJjwtDecoderTest {
-    private static final String SECRET = "defaultSecretKeyThatIsLongEnoughForTests";
+    private static final String SECRET = "defaultSecretKeyThatIsLongLongLongEnoughForTests";
     private HmacJjwtDecoder decoder;
 
     @BeforeEach
@@ -42,7 +42,8 @@ class HmacJjwtDecoderTest {
     @Test
     @DisplayName("JWT с неверной подписью -> BadJwtException")
     void invalidSignature_throwsBadJwtException() {
-        String token = createValidJwt("user123", List.of("USER"), "wrong-secret-very-very-very-long");
+        String token = createValidJwt("user123", List.of("USER"),
+                "wrongSecretKeyThatIsLongLongLongLongLongLongEnoughForFailTest1331238921");
 
         assertThatThrownBy(() -> decoder.decode(token))
                 .isInstanceOf(BadJwtException.class)
@@ -91,7 +92,7 @@ class HmacJjwtDecoderTest {
                 .subject("user")
                 .claim("roles", List.of("USER"))
                 .issuedAt(Date.from(now))
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)))
+                .signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET)))
                 .compact();
 
         assertThatThrownBy(() -> decoder.decode(token))
@@ -106,7 +107,7 @@ class HmacJjwtDecoderTest {
                 .claim("roles", roles)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(1, ChronoUnit.HOURS)))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret)))
                 .compact();
     }
 
@@ -116,7 +117,7 @@ class HmacJjwtDecoderTest {
                 .subject("user")
                 .issuedAt(Date.from(past))
                 .expiration(Date.from(past.plus(1, ChronoUnit.MINUTES)))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret)))
                 .compact();
     }
 }

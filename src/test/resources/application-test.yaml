@@ -32,4 +32,4 @@ monitoring:
     password: password
 
 jwt:
-  secret: defaultSecretKeyThatIsLongEnoughForTests
+  secret: defaultSecretKeyThatIsLongLongLongEnoughForTests100500
