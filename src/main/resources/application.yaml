@@ -24,6 +24,10 @@ app:
       uri: ${AUTH_SERVICE_URI}
     data-importer:
       uri: ${DATA_IMPORTER_URI}
+    profile-service:
+      uri: ${PROFILE_SERVICE_URI}
+    project-service:
+      uri: ${PROJECT_SERVICE_URI}
 
 management:
   metrics:
