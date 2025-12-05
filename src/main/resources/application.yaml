@@ -14,6 +14,14 @@ spring:
               uri: ${app.routes.data-importer.uri}
               predicates:
                 - Path=/api/data-importer/**
+            - id: profile-service
+              uri: ${app.routes.profile-service.uri}
+              predicates:
+                - Path=/api/profile/**
+            - id: project-service
+              uri: ${app.routes.project-service.uri}
+              predicates:
+                - Path=/api/project/**
 
 app:
   http-client:
@@ -24,6 +32,10 @@ app:
       uri: ${AUTH_SERVICE_URI}
     data-importer:
       uri: ${DATA_IMPORTER_URI}
+    profile-service:
+      uri: ${PROFILE_SERVICE_URI}
+    project-service:
+      uri: ${PROJECT_SERVICE_URI}
 
 management:
   metrics:

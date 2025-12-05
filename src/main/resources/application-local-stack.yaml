@@ -4,6 +4,10 @@ app:
       uri: http://auth-service:8080
     data-importer:
       uri: http://data-importer:8080
+    profile-service:
+      uri: http://profile-service:8080
+    project-service:
+      uri: http://project-service:8080
 
 monitoring:
   prometheus:
