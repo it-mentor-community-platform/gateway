@@ -40,8 +40,11 @@ public class GatewayGeneralIntegrationTest {
     private static final String ACCESS_TOKEN_HEADER_NAME = "X-Access-Token";
     private static final String USER_ID_HEADER_NAME = "X-Telegram-User-Id";
     private static final String USER_ROLES_HEADER_NAME = "X-User-Roles";
+    private static final String USERNAME_HEADER_NAME = "X-Telegram-Username";
     private static final String ROLES_CLAIM_NAME = "roles";
+    private static final String USERNAME_CLAIM_NAME = "telegram_username";
     private static final String TEST_USER = "user_telegram_id";
+    private static final String TEST_USERNAME = "zhukovsd";
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_STUDENT = "STUDENT";
     private final String jwtSecret;
@@ -57,7 +60,7 @@ public class GatewayGeneralIntegrationTest {
 
     public GatewayGeneralIntegrationTest(@Value("${jwt.secret}") String jwtSecret) {
         this.jwtSecret = jwtSecret;
-        this.validJwtTestUserAdminStudent = createValidJwt(TEST_USER, List.of(ROLE_ADMIN, ROLE_STUDENT));
+        this.validJwtTestUserAdminStudent = createValidJwt(TEST_USER, TEST_USERNAME, List.of(ROLE_ADMIN, ROLE_STUDENT));
     }
 
     @DynamicPropertySource
@@ -127,6 +130,7 @@ public class GatewayGeneralIntegrationTest {
                 getRequestedFor(urlEqualTo(TEST_SERVICE_PATH))
                         .withHeader(USER_ID_HEADER_NAME, equalTo(TEST_USER))
                         .withHeader(USER_ROLES_HEADER_NAME, equalTo(ROLE_ADMIN + "," + ROLE_STUDENT))
+                        .withHeader(USERNAME_HEADER_NAME, equalTo(TEST_USERNAME))
         );
     }
 
@@ -185,12 +189,13 @@ public class GatewayGeneralIntegrationTest {
         );
     }
 
-    private String createValidJwt(String userId, List<String> roles) {
+    private String createValidJwt(String userId, String username, List<String> roles) {
         SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
         Date now = new Date();
         return Jwts.builder()
                 .subject(userId)
                 .claim(ROLES_CLAIM_NAME, roles)
+                .claim(USERNAME_CLAIM_NAME, username)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + 3_600_000L)) // 1 hour
                 .signWith(key)
