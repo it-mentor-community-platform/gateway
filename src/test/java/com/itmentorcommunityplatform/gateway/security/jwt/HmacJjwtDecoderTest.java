@@ -105,6 +105,7 @@ class HmacJjwtDecoderTest {
         return Jwts.builder()
                 .subject(subject)
                 .claim("roles", roles)
+                .claim("telegram_username", "test_username")
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(1, ChronoUnit.HOURS)))
                 .signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret)))
