@@ -1,0 +1,17 @@
+app:
+  routes:
+    auth-service:
+      uri: ${AUTH_SERVICE_URL:http://auth-service:8080}
+    data-importer:
+      uri: ${DATA_IMPORTER_URL:http://data-importer:8080}
+    profile-service:
+      uri: ${PROFILE_SERVICE_URL:http://profile-service:8080}
+    project-service:
+      uri: ${PROJECT_SERVICE_URL:http://project-service:8080}
+
+monitoring:
+  prometheus:
+    password: ${PROMETHEUS_PASSWORD}
+
+jwt:
+  secret: ${JWT_SECRET}
