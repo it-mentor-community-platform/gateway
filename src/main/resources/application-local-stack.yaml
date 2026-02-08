@@ -8,6 +8,8 @@ app:
       uri: http://profile-service:8080
     project-service:
       uri: http://project-service:8080
+    mentor-service:
+      uri: http://mentor-service:8080
 
 monitoring:
   prometheus:
