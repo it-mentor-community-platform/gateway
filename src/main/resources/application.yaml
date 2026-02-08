@@ -22,6 +22,10 @@ spring:
               uri: ${app.routes.project-service.uri}
               predicates:
                 - Path=/api/project/**
+            - id: mentor-service
+              uri: ${app.routes.mentor-service.uri}
+              predicates:
+                - Path=/api/mentor/**
 
 app:
   http-client:
@@ -36,6 +40,8 @@ app:
       uri: ${PROFILE_SERVICE_URI}
     project-service:
       uri: ${PROJECT_SERVICE_URI}
+    mentor-service:
+      uri: ${MENTOR_SERVICE_URI}
 
 management:
   metrics:

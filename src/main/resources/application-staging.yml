@@ -8,6 +8,8 @@ app:
       uri: ${PROFILE_SERVICE_URL:http://profile-service:8080}
     project-service:
       uri: ${PROJECT_SERVICE_URL:http://project-service:8080}
+    mentor-service:
+      uri: ${MENTOR_SERVICE_URL:http://mentor-service:8080}
 
 monitoring:
   prometheus:
@@ -15,3 +17,5 @@ monitoring:
 
 jwt:
   secret: ${JWT_SECRET}
+
+
