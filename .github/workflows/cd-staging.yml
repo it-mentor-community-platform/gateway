@@ -1,0 +1,65 @@
+name: CD - Update Helm for Staging
+
+on:
+  workflow_run:
+    workflows:
+      - "CI - Build & Push Docker Image"
+    types:
+      - completed
+    branches:
+      - staging
+
+jobs:
+  update-helm:
+    name: Update Helm values and create PR
+    runs-on: ubuntu-latest
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'staging'
+
+    steps:
+      - name: Checkout helm-chart repo
+        uses: actions/checkout@v4
+        with:
+          repository: it-mentor-community-platform/helm-chart
+          token: ${{ secrets.HELM_REPO_TOKEN }}
+          ref: main
+
+      - name: Compute short SHA
+        id: vars
+        run: |
+          SHA_SHORT="${{ github.event.workflow_run.head_sha }}"
+          SHA_SHORT="${SHA_SHORT:0:7}"
+          echo "sha_short=$SHA_SHORT" >> "$GITHUB_OUTPUT"
+
+      - name: Update values-staging.yaml
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -i '.services.gateway.tag = "sha-${{ steps.vars.outputs.sha_short }}"' values-staging.yaml
+
+      - name: Commit and push changes
+        id: push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          TS=$(date +%Y%m%d%H%M%S)
+          BRANCH="update/gateway-sha-${{ steps.vars.outputs.sha_short }}-$TS"
+          git checkout -b "$BRANCH"
+
+          git add values-staging.yaml
+          git commit -m "chore: update gateway to sha-${{ steps.vars.outputs.sha_short }}"
+          git push origin "$BRANCH"
+
+          echo "branch_name=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.HELM_REPO_TOKEN }}
+        run: |
+          gh pr create \
+            --repo it-mentor-community-platform/helm-chart \
+            --base main \
+            --head "${{ steps.push.outputs.branch_name }}" \
+            --title "chore: update gateway to sha-${{ steps.vars.outputs.sha_short }}" \
+            --body "Auto-generated PR to update gateway image tag to \`sha-${{ steps.vars.outputs.sha_short }}\`."
