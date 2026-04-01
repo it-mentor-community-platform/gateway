@@ -13,6 +13,8 @@ app:
       uri: http://localhost:8084
     mentor-service:
       uri: http://localhost:8085
+    job-market-analytics-service:
+      uri: http://localhost:8086
 
 monitoring:
   prometheus:
