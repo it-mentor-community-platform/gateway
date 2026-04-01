@@ -10,6 +10,8 @@ app:
       uri: http://project-service:8080
     mentor-service:
       uri: http://mentor-service:8080
+    job-market-analytics-service:
+      uri: http://job-market-analytics-service:8080
 
 monitoring:
   prometheus:
