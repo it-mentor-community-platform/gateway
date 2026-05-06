@@ -53,6 +53,21 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
+    public SecurityFilterChain telegramBotAdapterSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/api/telegram-bot-adapter/**")
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated()
+                )
+                .build();
+    }
+
+    @Bean
+    @Order(3)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
@@ -85,6 +100,8 @@ public class SecurityConfig {
     @Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(
             @Value("${monitoring.prometheus.password}") String rawPassword,
+            @Value("${telegram-bot-adapter.auth.username}") String adapterUsername,
+            @Value("${telegram-bot-adapter.auth.password}") String adapterPassword,
             PasswordEncoder passwordEncoder) {
 
         UserDetails prometheus = User.withUsername("prometheus")
@@ -92,7 +109,12 @@ public class SecurityConfig {
                 .roles("PROMETHEUS")
                 .build();
 
-        return new InMemoryUserDetailsManager(prometheus);
+        UserDetails telegramAdapter = User.withUsername(adapterUsername)
+                .password(passwordEncoder.encode(adapterPassword))
+                .roles("TELEGRAM_ADAPTER")
+                .build();
+
+        return new InMemoryUserDetailsManager(prometheus, telegramAdapter);
     }
 
     @Bean

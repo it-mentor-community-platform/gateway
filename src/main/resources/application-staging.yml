@@ -20,4 +20,7 @@ monitoring:
 jwt:
   secret: ${JWT_SECRET}
 
-
+telegram-bot-adapter:
+  auth:
+    username: ${TELEGRAM_ADAPTER_USERNAME}
+    password: ${TELEGRAM_ADAPTER_PASSWORD}

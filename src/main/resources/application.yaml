@@ -30,6 +30,10 @@ spring:
               uri: ${app.routes.job-market-analytics-service.uri}
               predicates:
                 - Path=/api/job-market-analytics/**
+            - id: telegram-bot-adapter
+              uri: ${app.routes.job-market-analytics-service.uri}
+              predicates:
+                - Path=/api/telegram-bot-adapter/**
 
 app:
   http-client:
@@ -67,3 +71,8 @@ monitoring:
 
 jwt:
   secret: ${JWT_SECRET}
+
+telegram-bot-adapter:
+  auth:
+    username: ${TELEGRAM_ADAPTER_USERNAME}
+    password: ${TELEGRAM_ADAPTER_PASSWORD}
