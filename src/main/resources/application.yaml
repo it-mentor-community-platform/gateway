@@ -26,6 +26,10 @@ spring:
               uri: ${app.routes.mentor-service.uri}
               predicates:
                 - Path=/api/mentor/**
+            - id: job-market-analytics-service
+              uri: ${app.routes.job-market-analytics-service.uri}
+              predicates:
+                - Path=/api/job-market-analytics/**
 
 app:
   http-client:
@@ -42,6 +46,9 @@ app:
       uri: ${PROJECT_SERVICE_URI}
     mentor-service:
       uri: ${MENTOR_SERVICE_URI}
+    job-market-analytics-service:
+      uri: ${JOB_MARKET_ANALYTICS_SERVICE_URI}
+
 
 management:
   metrics:
