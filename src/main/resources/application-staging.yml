@@ -12,6 +12,8 @@ app:
       uri: ${MENTOR_SERVICE_URL:http://mentor-service:8080}
     job-market-analytics-service:
       uri: ${JOB_MARKET_ANALYTICS_SERVICE_URL:http://job-market-analytics-service:8080}
+    telegram-bot-adapter:
+      uri: ${TELEGRAM_BOT_ADAPTER_URL:http://telegram-bot-adapter:8080}
 
 monitoring:
   prometheus:
