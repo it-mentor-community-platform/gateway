@@ -12,6 +12,8 @@ app:
       uri: http://mentor-service:8080
     job-market-analytics-service:
       uri: http://job-market-analytics-service:8080
+    telegram-bot-adapter:
+      uri: http://telegram-bot-adapter:8087
 
 monitoring:
   prometheus:
@@ -19,3 +21,8 @@ monitoring:
 
 jwt:
   secret: 632eca39fc29068edc74133ca9cf8f40b4942191f80c0c78dd588835beb5f57b
+
+telegram-bot-adapter:
+  auth:
+    username: username
+    password: password

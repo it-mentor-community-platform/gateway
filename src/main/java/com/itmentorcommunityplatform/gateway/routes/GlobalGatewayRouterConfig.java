@@ -29,9 +29,12 @@ public class GlobalGatewayRouterConfig {
                 HandlerFilterFunction.ofRequestProcessor(jwtClaimsFilter);
 
         return RouterFunctions.route()
-                .nest(request -> true, builder -> builder
+                .nest(request -> !request.path().startsWith("/api/telegram-bot-adapter"), builder -> builder
                         .add(defaultRouter)
                         .filter(filter)
+                )
+                .nest(request -> request.path().startsWith("/api/telegram-bot-adapter"),
+                        builder -> builder.add(defaultRouter)
                 )
                 .build();
     }

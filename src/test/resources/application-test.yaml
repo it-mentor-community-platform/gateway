@@ -33,3 +33,8 @@ monitoring:
 
 jwt:
   secret: defaultSecretKeyThatIsLongLongLongEnoughForTests100500
+
+telegram-bot-adapter:
+  auth:
+    username: username
+    password: password
