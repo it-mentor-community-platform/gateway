@@ -34,6 +34,11 @@ spring:
               uri: ${app.routes.telegram-bot-adapter.uri}
               predicates:
                 - Path=/api/telegram-bot-adapter/**
+            - id: interval-repetition-service
+              uri: ${app.routes.interval-repetition-service.uri}
+              predicates:
+                - Path=/api/interval-repetition/**
+
 
 app:
   http-client:
@@ -54,6 +59,8 @@ app:
       uri: ${JOB_MARKET_ANALYTICS_SERVICE_URI}
     telegram-bot-adapter:
       uri: ${TELEGRAM_BOT_ADAPTER_URI}
+    interval-repetition-service:
+      uri: ${INTERVAL_REPETITION_SERVICE_URI}
 
 
 management:
