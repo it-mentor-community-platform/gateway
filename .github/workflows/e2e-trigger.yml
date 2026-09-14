@@ -23,14 +23,13 @@ jobs:
           echo "full_sha=$FULL_SHA" >> $GITHUB_OUTPUT
           echo "sha_short=$(echo $FULL_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
 
-      - name: Wait for build workflow to complete
-        uses: lewagon/wait-on-check-action@v1.3.4
+      - name: Wait for all checks
+        uses: step-security/wait-for-status-checks@v0
         with:
-          ref: ${{ steps.vars.outputs.full_sha }}
-          check-name: 'Build and Push Docker image'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 15
-          allowed-conclusions: success
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delay: 10s
+          interval: 15s
+          timeout: 300s
 
       - name: Trigger E2E workflow and wait for result
         uses: convictional/trigger-workflow-and-wait@v1.6.5
