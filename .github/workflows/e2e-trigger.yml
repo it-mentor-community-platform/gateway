@@ -30,6 +30,7 @@ jobs:
           delay: 10s
           interval: 15s
           timeout: 300s
+          ignore: 'Trigger E2E Test in e2e repo'
 
       - name: Trigger E2E workflow and wait for result
         uses: convictional/trigger-workflow-and-wait@v1.6.5
