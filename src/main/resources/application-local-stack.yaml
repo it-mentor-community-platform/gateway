@@ -14,6 +14,8 @@ app:
       uri: http://job-market-analytics-service:8080
     telegram-bot-adapter:
       uri: http://telegram-bot-adapter:8080
+    interval-repetition-service:
+      uri: http://interval-repetition-service:8080
 
 monitoring:
   prometheus:
