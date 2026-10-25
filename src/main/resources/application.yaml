@@ -6,6 +6,55 @@ spring:
       server:
         webmvc:
           routes:
+            - id: auth-service-api-docs
+              uri: ${app.routes.auth-service.uri}
+              predicates:
+                - Path=/api/auth/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: data-importer-api-docs
+              uri: ${app.routes.data-importer.uri}
+              predicates:
+                - Path=/api/data-importer/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: profile-service-api-docs
+              uri: ${app.routes.profile-service.uri}
+              predicates:
+                - Path=/api/profile/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: project-service-api-docs
+              uri: ${app.routes.project-service.uri}
+              predicates:
+                - Path=/api/project/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: mentor-service-api-docs
+              uri: ${app.routes.mentor-service.uri}
+              predicates:
+                - Path=/api/mentor/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: job-market-analytics-service-api-docs
+              uri: ${app.routes.job-market-analytics-service.uri}
+              predicates:
+                - Path=/api/job-market-analytics/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: telegram-bot-adapter-api-docs
+              uri: ${app.routes.telegram-bot-adapter.uri}
+              predicates:
+                - Path=/api/telegram-bot-adapter/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+            - id: interval-repetition-service-api-docs
+              uri: ${app.routes.interval-repetition-service.uri}
+              predicates:
+                - Path=/api/interval-repetition/v3/api-docs
+              filters:
+                - SetPath=/v3/api-docs
+
             - id: auth-service
               uri: ${app.routes.auth-service.uri}
               predicates:
@@ -61,7 +110,9 @@ app:
       uri: ${TELEGRAM_BOT_ADAPTER_URI}
     interval-repetition-service:
       uri: ${INTERVAL_REPETITION_SERVICE_URI}
-
+  swagger:
+    basic-auth:
+      enabled: false
 
 management:
   metrics:
