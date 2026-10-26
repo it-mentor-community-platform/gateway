@@ -1,7 +1,9 @@
 package com.itmentorcommunityplatform.gateway.security.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -118,13 +122,26 @@ public class SecurityConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "app.swagger.basic-auth.enabled", havingValue = "true")
+    @Qualifier("swaggerUser")
+    public UserDetails swaggerUserDetails(
+            @Value("${app.swagger.basic-auth.username}") String swaggerUsername,
+            @Value("${app.swagger.basic-auth.password}") String swaggerPassword,
+            PasswordEncoder passwordEncoder) {
+
+        return User.withUsername(swaggerUsername)
+                .password(passwordEncoder.encode(swaggerPassword))
+                .roles("SWAGGER")
+                .build();
+    }
+
+    @Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(
             @Value("${monitoring.prometheus.password}") String rawPassword,
             @Value("${telegram-bot-adapter.auth.username}") String adapterUsername,
             @Value("${telegram-bot-adapter.auth.password}") String adapterPassword,
-            @Value("${app.swagger.basic-auth.username}") String swaggerUsername,
-            @Value("${app.swagger.basic-auth.password}") String swaggerPassword,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            @Qualifier("swaggerUser") ObjectProvider<UserDetails> swaggerUser) {
 
         UserDetails prometheus = User.withUsername("prometheus")
                 .password(passwordEncoder.encode(rawPassword))
@@ -136,12 +153,10 @@ public class SecurityConfig {
                 .roles("TELEGRAM_ADAPTER")
                 .build();
 
-        UserDetails swagger = User.withUsername(swaggerUsername)
-                .password(passwordEncoder.encode(swaggerPassword))
-                .roles("SWAGGER")
-                .build();
+        List<UserDetails> users = new ArrayList<>(List.of(prometheus, telegramAdapter));
+        swaggerUser.ifAvailable(users::add);
 
-        return new InMemoryUserDetailsManager(prometheus, telegramAdapter, swagger);
+        return new InMemoryUserDetailsManager(users);
     }
 
     @Bean
