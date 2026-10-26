@@ -15,7 +15,14 @@ app:
     telegram-bot-adapter:
       uri: ${TELEGRAM_BOT_ADAPTER_URL:http://telegram-bot-adapter:8080}
     interval-repetition-service:
-      uri: ${INTERVAL_REPETITION_SERVICE_URL:http://interval-repetition-service:8080}
+      uri: ${INTERVAL_REPETITION_SERVICE_URI:http://interval-repetition-service:8080}
+  cors:
+    allowed-origins: https://miniapp.staging.platform.zhukovsd.it
+  swagger:
+    basic-auth:
+      enabled: true
+      username: ${SWAGGER_USERNAME}
+      password: ${SWAGGER_PASSWORD}
 
 monitoring:
   prometheus:
