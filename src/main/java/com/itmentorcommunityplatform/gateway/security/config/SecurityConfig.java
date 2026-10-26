@@ -1,8 +1,11 @@
 package com.itmentorcommunityplatform.gateway.security.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -18,8 +21,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,6 +35,7 @@ public class SecurityConfig {
 
     private static final String API_SERVICE_INTERNAL_PATTERN = "/api/{service:^(?!$).+}/internal/**";
     private static final String ACCESS_TOKEN_HEADER_NAME = "X-Access-Token";
+    private static final String SWAGGER_DOCS_PATTERN = "/api/*/v3/api-docs";
 
     private final JwtDecoder jwtDecoder;
 
@@ -68,6 +77,25 @@ public class SecurityConfig {
 
     @Bean
     @Order(3)
+    @ConditionalOnProperty(
+            name = "app.swagger.basic-auth.enabled",
+            havingValue = "true")
+    public SecurityFilterChain swaggerBasicAuthSecurityFilterChain(
+            HttpSecurity http,
+            InMemoryUserDetailsManager inMemoryUds) throws Exception {
+        return http
+                .securityMatcher(SWAGGER_DOCS_PATTERN)
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(Customizer.withDefaults())
+                .userDetailsService(inMemoryUds)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .build();
+    }
+
+    @Bean
+    @Order(4)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
@@ -98,11 +126,26 @@ public class SecurityConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "app.swagger.basic-auth.enabled", havingValue = "true")
+    @Qualifier("swaggerUser")
+    public UserDetails swaggerUserDetails(
+            @Value("${app.swagger.basic-auth.username}") String swaggerUsername,
+            @Value("${app.swagger.basic-auth.password}") String swaggerPassword,
+            PasswordEncoder passwordEncoder) {
+
+        return User.withUsername(swaggerUsername)
+                .password(passwordEncoder.encode(swaggerPassword))
+                .roles("SWAGGER")
+                .build();
+    }
+
+    @Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(
             @Value("${monitoring.prometheus.password}") String rawPassword,
             @Value("${telegram-bot-adapter.auth.username}") String adapterUsername,
             @Value("${telegram-bot-adapter.auth.password}") String adapterPassword,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            @Qualifier("swaggerUser") ObjectProvider<UserDetails> swaggerUser) {
 
         UserDetails prometheus = User.withUsername("prometheus")
                 .password(passwordEncoder.encode(rawPassword))
@@ -114,11 +157,27 @@ public class SecurityConfig {
                 .roles("TELEGRAM_ADAPTER")
                 .build();
 
-        return new InMemoryUserDetailsManager(prometheus, telegramAdapter);
+        List<UserDetails> users = new ArrayList<>(List.of(prometheus, telegramAdapter));
+        swaggerUser.ifAvailable(users::add);
+
+        return new InMemoryUserDetailsManager(users);
     }
 
     @Bean
     public PasswordEncoder encoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins}") List<String> allowedOrigins) {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(allowedOrigins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", config);
+        return source;
     }
 }
