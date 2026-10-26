@@ -110,6 +110,8 @@ app:
       uri: ${TELEGRAM_BOT_ADAPTER_URI}
     interval-repetition-service:
       uri: ${INTERVAL_REPETITION_SERVICE_URI}
+  cors:
+    allowed-origins: https://miniapp.platform.zhukovsd.it
   swagger:
     basic-auth:
       enabled: false

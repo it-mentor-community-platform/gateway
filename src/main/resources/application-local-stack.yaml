@@ -16,6 +16,8 @@ app:
       uri: http://telegram-bot-adapter:8080
     interval-repetition-service:
       uri: http://interval-repetition-service:8080
+  cors:
+    allowed-origins: "*"
   swagger:
     basic-auth:
       enabled: true
