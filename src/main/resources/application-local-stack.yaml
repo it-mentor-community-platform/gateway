@@ -17,7 +17,7 @@ app:
     interval-repetition-service:
       uri: http://interval-repetition-service:8080
   cors:
-    allowed-origins: "http://localhost:[*]"
+    allowed-origins: ["http://localhost:[*]", "https://127.0.0.1:[*]"]
   swagger:
     basic-auth:
       enabled: true
